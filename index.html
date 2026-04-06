@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>참빛 전자문서 시스템</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background:#f5f5f5;
+      margin:0;
+      padding:20px;
+      color:#222;
+      line-height:1.6;
+    }
+    .wrap {
+      max-width:760px;
+      margin:0 auto;
+      background:#fff;
+      padding:24px;
+      border-radius:14px;
+      box-shadow:0 2px 14px rgba(0,0,0,0.08);
+    }
+    h1,h2,h3 { margin-top:0; }
+    .field { margin:14px 0; }
+    label {
+      display:block;
+      font-weight:bold;
+      margin-bottom:6px;
+    }
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    textarea {
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      box-sizing:border-box;
+      font-size:15px;
+      background:#fff;
+    }
+    select {
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      box-sizing:border-box;
+      font-size:15px;
+      background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 14px center;
+      appearance:none;
+      -webkit-appearance:none;
+      cursor:pointer;
+    }
+    input[readonly] {
+      background:#f3f3f3;
+      color:#333;
+      cursor:not-allowed;
+    }
+
+    .contract-box {
+      border:1px solid #ddd;
+      background:#fcfcfc;
+      padding:16px;
+      border-radius:10px;
+      max-height:320px;
+      overflow-y:auto;
+      white-space:pre-line;
+      font-size:14px;
+      line-height:1.8;
+      margin-bottom:4px;
+    }
+
+    .check-area {
+      margin:12px 0 16px;
+      padding:14px;
+      background:#f2f6ff;
+      border:1px solid #dbe5ff;
+      border-radius:10px;
+    }
+    .check-item {
+      margin-bottom:8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:15px;
+    }
+    .check-item input[type="checkbox"] {
+      width:18px;
+      height:18px;
+      accent-color:#2d6cdf;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .section { display:none; }
+    .section.active { display:block; }
+
+    .signature-section {
+      margin-top:18px;
+      padding:18px;
+      border:2px dashed #ccc;
+      border-radius:10px;
+      background:#fafafa;
+      opacity:.4;
+      pointer-events:none;
+      transition:opacity .2s ease, border-color .2s ease;
+    }
+    .signature-section.enabled {
+      opacity:1;
+      pointer-events:auto;
+      border:2px solid #333;
+    }
+    canvas {
+      width:100%;
+      height:220px;
+      border:1px solid #bbb;
+      border-radius:8px;
+      background:#fff;
+      touch-action:none;
+      display:block;
+      cursor:crosshair;
+    }
+
+    .btn-row {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    button {
+      padding:12px 18px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:15px;
+    }
+    .btn-save   { background:#ddd; color:#111; }
+    .btn-clear  { background:#bbb; color:#111; }
+    .btn-submit { background:#111; color:#fff; }
+    .btn-lookup { background:#2d6cdf; color:#fff; margin-top:8px; }
+
+    .lookup-box {
+      display:none;
+      margin:12px 0;
+      padding:12px;
+      border-radius:8px;
+      background:#eef5ff;
+      border:1px solid #cddfff;
+      font-size:14px;
+      line-height:1.6;
+    }
+    .contract-link-box {
+      display:none;
+      margin:12px 0 18px;
+      padding:14px;
+      border-radius:10px;
+      background:#fff8e8;
+      border:1px solid #f0d58a;
+      color:#6d4c00;
+    }
+    .contract-link-box strong {
+      display:block;
+      font-size:16px;
+      margin-bottom:6px;
+    }
+
+    .sub-title {
+      margin:22px 0 8px;
+      font-size:17px;
+      font-weight:bold;
+      color:#111;
+      border-left:4px solid #2d6cdf;
+      padding-left:10px;
+    }
+    .sig-notice {
+      font-size:13px;
+      color:#888;
+      margin-top:6px;
+    }
+    .divider {
+      border:none;
+      border-top:2px solid #eee;
+      margin:24px 0;
+    }
+
+    .msg-box {
+      display:none;
+      margin:14px 0 0;
+      padding:12px 14px;
+      border-radius:8px;
+      font-size:14px;
+      line-height:1.6;
+      font-weight:bold;
+    }
+    .msg-box.show { display:block; }
+    .msg-box.success {
+      background:#edf9f0;
+      border:1px solid #bde4c8;
+      color:#1b7a3a;
+    }
+    .msg-box.error {
+      background:#fff1f1;
+      border:1px solid #f0c4c4;
+      color:#b72f2f;
+    }
+    .msg-box.info {
+      background:#eef5ff;
+      border:1px solid #c9dbff;
+      color:#2758a5;
+    }
+
+    .result-box {
+      display:none;
+      margin:16px 0 0;
+      padding:14px;
+      border-radius:10px;
+      background:#f8fbff;
+      border:1px solid #d5e5ff;
+    }
+    .result-box textarea {
+      width:100%;
+      min-height:140px;
+      margin-top:8px;
+      resize:vertical;
+    }
+
+    @media (max-width: 768px) {
+      body { padding:12px; }
+      .wrap { padding:16px; border-radius:12px; }
+      button { width:100%; }
+      .btn-row { flex-direction:column; }
+      canvas { height:200px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 브라우저 자동완성 방지용 더미 -->
+  <input type="text" style="display:none" autocomplete="username">
+  <input type="password" style="display:none" autocomplete="new-password">
+
+  <h1>참빛 전자문서 시스템</h1>
+
+  <!-- ① 문서 종류 선택 -->
+  <div class="field">
+    <label for="formType">문서종류</label>
+    <select id="formType">
+      <option value="통합계약서">통합계약서</option>
+      <option value="설치확인서">설치확인서</option>
+    </select>
+  </div>
+
+  <!-- ② 통합계약서 내용 -->
+  <div class="section active" id="contractContentSection">
+    <div class="sub-title">📄 통합계약서 내용</div>
+    <div class="contract-box">참빛 미네랄 수소수기 구독·렌탈 통합 계약서
+
+[1. 계약 당사자]
+- 회사명: ㈜트루라이트(참빛)
+- 고객명: 입력 정보에 따름
+- 연락처: 입력 정보에 따름
+- 주소: 입력 정보에 따름
+
+[2. 제품 및 서비스 정보]
+- 제품명: 참빛 미네랄 수소수기
+- 모델명: TL-5500
+- 월 구독료: 22,000원
+- 설치 예정일: 입력 정보에 따름
+
+[3. 구독/렌탈 계약 내용]
+1) 본 계약은 참빛 미네랄 수소수기 구독 서비스 이용에 관한 계약입니다.
+2) 고객은 월 구독료를 납부하며 서비스를 이용합니다.
+3) 의무 사용 기간은 없으며, 해지 시 회사 정책에 따릅니다.
+4) 제품은 정상적인 사용 상태를 유지하여야 하며, 고객의 과실로 인한 손상 시 비용이 발생할 수 있습니다.
+5) 서비스 이용 중 발생하는 문의 및 요청은 회사 고객센터를 통해 처리됩니다.
+
+[4. 개인정보 수집 및 이용 동의]
+- 수집 항목: 이름, 연락처, 주소, 계좌정보
+- 이용 목적: 설치, 고객관리, 요금 청구, 서비스 제공
+- 보유 기간: 서비스 종료 후 관련 법령에 따른 기간
+※ 고객은 개인정보 제공을 거부할 수 있으나, 이 경우 서비스 이용이 제한될 수 있습니다.
+
+[5. CMS 자동이체 신청 및 동의]
+1) 고객은 월 구독료 납부를 위해 자동이체를 신청합니다.
+2) 출금일 및 세부 조건은 회사 정책에 따릅니다.
+3) 잔액 부족 등으로 출금이 실패할 경우 재출금이 진행될 수 있습니다.
+4) 자동이체 해지는 고객 요청에 따라 처리됩니다.
+
+[6. 계좌 정보 확인 및 책임 동의]
+본인은 입력한 계좌 정보가 본인 명의 또는 출금 동의가 완료된 계좌임을 확인하며,
+해당 계좌에서 참빛 구독료가 자동이체 되는 것에 동의합니다.
+또한 계좌 정보 입력 오류로 인한 출금 실패 또는 문제 발생 시 책임은 고객에게 있음을 확인합니다.
+
+[7. 기타 안내]
+- 본 계약은 전자서명으로 체결되며 서면 계약과 동일한 효력을 가집니다.
+- 고객은 계약 내용을 충분히 확인하고 동의한 것으로 간주됩니다.</div>
+
+    <div class="check-area">
+      <div class="check-item">
+        <input type="checkbox" id="agreePrivacy">
+        <label for="agreePrivacy" style="font-weight:normal;margin:0;">개인정보 수집 및 이용에 동의합니다.</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="agreeCms">
+        <label for="agreeCms" style="font-weight:normal;margin:0;">CMS 자동이체 신청 및 출금에 동의합니다.</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="agreeAll">
+        <label for="agreeAll" style="font-weight:normal;margin:0;">계약 내용을 충분히 읽고 동의합니다.</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 설치확인서 내용 -->
+  <div class="section" id="installContentSection">
+    <div class="sub-title">📄 설치확인서 내용</div>
+    <div class="contract-box">참빛 미네랄 수소수기 설치 확인서
+
+[1. 고객 정보]
+- 고객명: 입력 정보에 따름
+- 연락처: 입력 정보에 따름
+- 주소: 입력 정보에 따름
+- 모델명: TL-5500
+
+[2. 설치 확인]
+1) 제품이 정상적으로 설치되었습니다.
+2) 제품 외관 및 작동 상태에 이상이 없습니다.
+3) 사용 방법 및 관리 방법에 대한 설명을 들었습니다.
+4) 필터 교체 및 관리 안내를 받았습니다.
+
+[3. 설치비 안내]
+- 설치비: 입력 정보에 따름
+- 납부 방식: 입력 정보에 따름
+- 입금 상태: 입력 정보에 따름
+- 입금 예정일: 입력 정보에 따름
+- 설치비 입금 계좌: 입력 정보에 따름
+
+[4. 확인 및 동의]
+본인은 설치 상태 및 안내 내용을 확인하였으며, 위 내용에 동의합니다.</div>
+
+    <div class="check-area">
+      <div class="check-item">
+        <input type="checkbox" id="installAgree">
+        <label for="installAgree" style="font-weight:normal;margin:0;">설치 내용 및 안내를 확인하고 동의합니다.</label>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ③ 공통 고객 기본 정보 -->
+  <div class="sub-title">👤 고객 기본 정보</div>
+
+  <div class="field">
+    <label for="customerPhone">연락처</label>
+    <input type="text" id="customerPhone" placeholder="010-1234-5678" autocomplete="off" name="ch_phone">
+    <button type="button" id="lookupContractBtn" class="btn-lookup" style="display:none;">최근 계약정보 불러오기</button>
+  </div>
+
+  <div id="lookupResultBox" class="lookup-box"></div>
+  <div id="contractLinkBox" class="contract-link-box">
+    <strong>연결된 계약번호</strong>
+    <span id="contractLinkText">-</span>
+  </div>
+
+  <div class="field">
+    <label for="customerName">고객명</label>
+    <input type="text" id="customerName" placeholder="이름 입력" autocomplete="off" name="ch_name">
+  </div>
+
+  <div class="field">
+    <label for="customerAddress">주소</label>
+    <input type="text" id="customerAddress" placeholder="주소 입력" autocomplete="off" name="ch_address">
+  </div>
+
+  <div class="field">
+    <label for="modelName">모델명</label>
+    <input type="text" id="modelName" value="TL-5500" readonly>
+  </div>
+
+  <div class="field">
+    <label for="note">비고</label>
+    <textarea id="note" placeholder="메모가 있으면 입력해 주세요" autocomplete="off" name="ch_note"></textarea>
+  </div>
+
+  <input type="hidden" id="linkedContractNo">
+  <input type="hidden" id="dedupeKey">
+  <input type="hidden" id="customerPhoneDigits">
+
+  <!-- ④ 통합계약서 입력 필드 -->
+  <div class="section active" id="contractSection">
+    <hr class="divider">
+    <div class="sub-title">📋 계약 상세 정보</div>
+
+    <div class="field">
+      <label for="monthlyFee">월 구독료</label>
+      <input type="text" id="monthlyFee" value="22,000원" readonly>
+    </div>
+
+    <div class="field">
+      <label for="installDate">설치 예정일</label>
+      <input type="date" id="installDate">
+    </div>
+
+    <div class="field">
+      <label for="bankName">CMS 은행명</label>
+      <select id="bankName">
+        <option value="">-- 은행을 선택하세요 --</option>
+        <option value="KB국민은행">KB국민은행</option>
+        <option value="신한은행">신한은행</option>
+        <option value="우리은행">우리은행</option>
+        <option value="하나은행">하나은행</option>
+        <option value="NH농협은행">NH농협은행</option>
+        <option value="IBK기업은행">IBK기업은행</option>
+        <option value="카카오뱅크">카카오뱅크</option>
+        <option value="토스뱅크">토스뱅크</option>
+        <option value="케이뱅크">케이뱅크</option>
+        <option value="SC제일은행">SC제일은행</option>
+        <option value="씨티은행">씨티은행</option>
+        <option value="대구은행">대구은행</option>
+        <option value="부산은행">부산은행</option>
+        <option value="경남은행">경남은행</option>
+        <option value="광주은행">광주은행</option>
+        <option value="전북은행">전북은행</option>
+        <option value="제주은행">제주은행</option>
+        <option value="수협은행">수협은행</option>
+        <option value="새마을금고">새마을금고</option>
+        <option value="신협">신협</option>
+        <option value="우체국">우체국</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="accountNumber">CMS 계좌번호</label>
+      <input type="text" id="accountNumber" placeholder="계좌번호 입력" autocomplete="new-password" name="ch_account_number">
+    </div>
+
+    <div class="field">
+      <label for="accountHolder">예금주</label>
+      <input type="text" id="accountHolder" placeholder="예금주 입력" autocomplete="off" name="ch_account_holder">
+    </div>
+  </div>
+
+  <!-- ④ 설치확인서 입력 필드 -->
+  <div class="section" id="installSection">
+    <hr class="divider">
+    <div class="sub-title">🔧 설치 상세 정보</div>
+
+    <div class="field">
+      <label for="actualInstallDate">설치일</label>
+      <input type="date" id="actualInstallDate">
+    </div>
+
+    <div class="field">
+      <label for="installFee">설치비</label>
+      <input type="text" id="installFee" placeholder="예: 50,000원">
+    </div>
+
+    <div class="field">
+      <label for="installFeeMethod">설치비 납부방식</label>
+      <select id="installFeeMethod">
+        <option value="">-- 선택하세요 --</option>
+        <option value="계좌이체">계좌이체</option>
+        <option value="현장납부">현장납부</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="installFeeStatus">설치비 입금상태</label>
+      <select id="installFeeStatus">
+        <option value="">-- 선택하세요 --</option>
+        <option value="입금완료">입금완료</option>
+        <option value="입금예정">입금예정</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="installFeeDueDate">설치비 입금예정일</label>
+      <input type="date" id="installFeeDueDate">
+    </div>
+
+    <div class="field">
+      <label for="installFeeBank">설치비 입금 은행명</label>
+      <select id="installFeeBank">
+        <option value="">-- 은행을 선택하세요 --</option>
+        <option value="KB국민은행">KB국민은행</option>
+        <option value="신한은행">신한은행</option>
+        <option value="우리은행">우리은행</option>
+        <option value="하나은행">하나은행</option>
+        <option value="NH농협은행">NH농협은행</option>
+        <option value="IBK기업은행">IBK기업은행</option>
+        <option value="카카오뱅크">카카오뱅크</option>
+        <option value="토스뱅크">토스뱅크</option>
+        <option value="케이뱅크">케이뱅크</option>
+        <option value="SC제일은행">SC제일은행</option>
+        <option value="씨티은행">씨티은행</option>
+        <option value="대구은행">대구은행</option>
+        <option value="부산은행">부산은행</option>
+        <option value="경남은행">경남은행</option>
+        <option value="광주은행">광주은행</option>
+        <option value="전북은행">전북은행</option>
+        <option value="제주은행">제주은행</option>
+        <option value="수협은행">수협은행</option>
+        <option value="새마을금고">새마을금고</option>
+        <option value="신협">신협</option>
+        <option value="우체국">우체국</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="installFeeAccount">설치비 입금 계좌번호</label>
+      <input type="text" id="installFeeAccount" placeholder="계좌번호 입력" autocomplete="new-password" name="ch_install_account">
+    </div>
+
+    <div class="field">
+      <label for="installFeeHolder">설치비 예금주</label>
+      <input type="text" id="installFeeHolder" placeholder="예금주 입력" autocomplete="off" name="ch_install_holder">
+    </div>
+  </div>
+
+  <!-- ⑤ 전자서명 -->
+  <hr class="divider">
+  <div class="sub-title">✍️ 전자서명</div>
+  <p style="font-size:13px;color:#888;margin:0 0 10px;">모든 동의 항목을 체크하면 서명이 활성화됩니다.</p>
+  <div class="signature-section" id="signatureSection">
+    <canvas id="signaturePad"></canvas>
+    <div class="btn-row">
+      <button type="button" class="btn-save"  id="saveBtn">임시저장</button>
+      <button type="button" class="btn-clear" id="clearBtn">서명 지우기</button>
+      <button type="button" class="btn-submit" id="submitBtn">최종 제출</button>
+    </div>
+    <p class="sig-notice">※ 손가락 또는 마우스로 서명해 주세요.</p>
+  </div>
+
+  <div id="statusBox" class="msg-box"></div>
+
+  <div id="resultBox" class="result-box">
+    <strong>고객 발송 안내 문구</strong>
+    <textarea id="customerMessage" readonly></textarea>
+
+    <div id="pdfLinkBox" class="contract-link-box" style="display:none; margin-top:10px;">
+      <strong>PDF 링크</strong>
+      <a id="pdfLink" href="#" target="_blank" rel="noopener noreferrer">열기</a>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-lookup" id="copyMessageBtn">문구 복사</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx1t34q5VczSaaAJgFxAQxiPmSldkCwWzqPO5A5DJj0xHNVBdfxTc-mPXcrmf7iTerlew/exec";
+
+  /* ── 요소 참조 ── */
+  const formType               = document.getElementById("formType");
+  const contractContentSection = document.getElementById("contractContentSection");
+  const installContentSection  = document.getElementById("installContentSection");
+  const contractSection        = document.getElementById("contractSection");
+  const installSection         = document.getElementById("installSection");
+  const signatureSection       = document.getElementById("signatureSection");
+  const lookupBtn              = document.getElementById("lookupContractBtn");
+  const lookupResultBox        = document.getElementById("lookupResultBox");
+  const contractLinkBox        = document.getElementById("contractLinkBox");
+  const contractLinkText       = document.getElementById("contractLinkText");
+  const statusBox              = document.getElementById("statusBox");
+  const resultBox              = document.getElementById("resultBox");
+  const customerMessage        = document.getElementById("customerMessage");
+  const pdfLinkBox             = document.getElementById("pdfLinkBox");
+  const pdfLink                = document.getElementById("pdfLink");
+
+  /* ── 상태 메시지 ── */
+  function showStatus(type, text) {
+    statusBox.className = `msg-box show ${type}`;
+    statusBox.textContent = text;
+  }
+
+  function hideStatus() {
+    statusBox.className = "msg-box";
+    statusBox.textContent = "";
+  }
+
+  function hideResultBox() {
+    resultBox.style.display = "none";
+    customerMessage.value = "";
+    pdfLinkBox.style.display = "none";
+    pdfLink.href = "#";
+    pdfLink.textContent = "열기";
+  }
+
+  /* ── 문서종류 전환 ── */
+  function updateSection() {
+    const isContract = formType.value === "통합계약서";
+
+    contractContentSection.classList.toggle("active", isContract);
+    installContentSection.classList.toggle("active", !isContract);
+    contractSection.classList.toggle("active", isContract);
+    installSection.classList.toggle("active", !isContract);
+
+    lookupBtn.style.display = isContract ? "none" : "inline-block";
+
+    if (isContract) {
+      lookupResultBox.style.display = "none";
+      contractLinkBox.style.display = "none";
+      document.getElementById("linkedContractNo").value = "";
+    }
+
+    updateSignatureAccess();
+  }
+
+  formType.addEventListener("change", updateSection);
+
+  /* ── 서명 활성화 조건 ── */
+  function updateSignatureAccess() {
+    let enabled = false;
+
+    if (formType.value === "통합계약서") {
+      enabled =
+        document.getElementById("agreePrivacy").checked &&
+        document.getElementById("agreeCms").checked &&
+        document.getElementById("agreeAll").checked;
+    } else {
+      enabled = document.getElementById("installAgree").checked;
+    }
+
+    signatureSection.classList.toggle("enabled", enabled);
+    if (enabled) setTimeout(initCanvas, 30);
+  }
+
+  ["agreePrivacy","agreeCms","agreeAll","installAgree"].forEach(id => {
+    document.getElementById(id).addEventListener("change", updateSignatureAccess);
+  });
+
+  /* ── Canvas 서명 ── */
+  const canvas = document.getElementById("signaturePad");
+  const ctx    = canvas.getContext("2d");
+  let drawing = false;
+  let hasSignature = false;
+  let canvasReady = false;
+
+  function initCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
+    const h = window.innerWidth <= 768 ? 200 : 220;
+    const saved = (hasSignature && canvasReady) ? canvas.toDataURL() : null;
+
+    canvas.width  = w * dpr;
+    canvas.height = h * dpr;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth   = 2.5;
+    ctx.lineCap     = "round";
+    ctx.lineJoin    = "round";
+    canvasReady = true;
+
+    if (saved) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, w, h);
+      img.src = saved;
+    }
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(initCanvas, 100);
+  });
+
+  window.addEventListener("resize", () => {
+    setTimeout(initCanvas, 50);
+  });
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches && e.touches[0]) {
+      return {
+        x: (e.touches[0].clientX - rect.left),
+        y: (e.touches[0].clientY - rect.top)
+      };
+    }
+    return {
+      x: (e.clientX - rect.left),
+      y: (e.clientY - rect.top)
+    };
+  }
+
+  function startDraw(e) {
+    if (!signatureSection.classList.contains("enabled")) return;
+    e.preventDefault();
+    if (!canvasReady) initCanvas();
+    drawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+
+  function moveDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    hasSignature = true;
+  }
+
+  function endDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    drawing = false;
+    ctx.beginPath();
+  }
+
+  canvas.addEventListener("mousedown",  startDraw, { passive: false });
+  canvas.addEventListener("mousemove",  moveDraw,  { passive: false });
+  canvas.addEventListener("mouseup",    endDraw,   { passive: false });
+  canvas.addEventListener("mouseleave", endDraw,   { passive: false });
+  canvas.addEventListener("touchstart", startDraw, { passive: false });
+  canvas.addEventListener("touchmove",  moveDraw,  { passive: false });
+  canvas.addEventListener("touchend",   endDraw,   { passive: false });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSignature = false;
+  });
+
+  /* ── 연락처 자동 포맷 ── */
+  document.getElementById("customerPhone").addEventListener("input", function(e) {
+    const v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    document.getElementById("customerPhoneDigits").value = v;
+
+    if (v.length < 4)      e.target.value = v;
+    else if (v.length < 8) e.target.value = v.replace(/(\d{3})(\d+)/, "$1-$2");
+    else                   e.target.value = v.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+  });
+
+  /* ── 계약정보 불러오기 ── */
+  async function lookupLatestContract() {
+    const phone = document.getElementById("customerPhone").value.replace(/\D/g, "");
+    lookupResultBox.style.display = "none";
+    contractLinkBox.style.display = "none";
+    hideStatus();
+
+    if (!phone) {
+      alert("연락처를 먼저 입력해 주세요.");
+      return;
+    }
+
+    try {
+      showStatus("info", "최근 계약정보를 조회하고 있습니다.");
+
+      const res = await fetch(`${WEB_APP_URL}?action=lookupContract&phone=${encodeURIComponent(phone)}`);
+      const data = await res.json();
+
+      if (data.result === "success" && data.data) {
+        document.getElementById("linkedContractNo").value   = data.data.contractDocNo  || "";
+        document.getElementById("customerName").value       = data.data.customerName   || "";
+        document.getElementById("customerAddress").value    = data.data.customerAddress || "";
+        contractLinkBox.style.display = "block";
+        contractLinkText.textContent  = data.data.contractDocNo || "-";
+
+        lookupResultBox.style.display = "block";
+        lookupResultBox.innerHTML = `<strong>계약정보를 불러왔습니다.</strong><br>
+계약번호: ${data.data.contractDocNo || "-"}<br>
+고객명: ${data.data.customerName || "-"}<br>
+주소: ${data.data.customerAddress || "-"}`;
+
+        showStatus("success", "최근 계약정보를 불러왔습니다.");
+      } else {
+        lookupResultBox.style.display = "block";
+        lookupResultBox.innerHTML = "해당 연락처의 계약정보를 찾지 못했습니다.";
+        showStatus("error", "최근 계약정보를 찾지 못했습니다.");
+      }
+    } catch(err) {
+      console.error(err);
+      lookupResultBox.style.display = "block";
+      lookupResultBox.innerHTML = "조회 중 오류가 발생했습니다.";
+      showStatus("error", "조회 중 오류가 발생했습니다.");
+    }
+  }
+
+  lookupBtn.addEventListener("click", lookupLatestContract);
+
+  /* ── 중복방지키 생성 ── */
+  function buildDedupeKey() {
+    const docType = formType.value;
+    const phoneDigits = document.getElementById("customerPhone").value.replace(/\D/g, "");
+    const contractDate = document.getElementById("installDate").value || "";
+    const installDate = document.getElementById("actualInstallDate").value || "";
+
+    const basisDate = docType === "통합계약서" ? contractDate : installDate;
+    return `${docType}|${phoneDigits}|${basisDate}`;
+  }
+
+  /* ── payload 구성 ── */
+  function buildPayload(actionType) {
+    const phoneDigits = document.getElementById("customerPhone").value.replace(/\D/g, "");
+    const dedupeKey = buildDedupeKey();
+
+    document.getElementById("customerPhoneDigits").value = phoneDigits;
+    document.getElementById("dedupeKey").value = dedupeKey;
+
+    const payload = {
+      action: actionType,
+      formType: formType.value,
+      linkedContractNo: document.getElementById("linkedContractNo").value.trim(),
+      dedupeKey: dedupeKey,
+      customerName:    document.getElementById("customerName").value.trim(),
+      customerPhone:   document.getElementById("customerPhone").value.trim(),
+      customerPhoneDigits: phoneDigits,
+      customerAddress: document.getElementById("customerAddress").value.trim(),
+      modelName: "TL-5500",
+      agreedAt:  new Date().toISOString(),
+      note: document.getElementById("note").value.trim()
+    };
+
+    if (formType.value === "통합계약서") {
+      payload.monthlyFee     = "22,000원";
+      payload.installDate    = document.getElementById("installDate").value.trim();
+      payload.bankName       = document.getElementById("bankName").value;
+      payload.accountNumber  = document.getElementById("accountNumber").value.trim();
+      payload.accountHolder  = document.getElementById("accountHolder").value.trim();
+      payload.agreePrivacy   = document.getElementById("agreePrivacy").checked ? "동의" : "";
+      payload.agreeCms       = document.getElementById("agreeCms").checked     ? "동의" : "";
+      payload.agreeAll       = document.getElementById("agreeAll").checked     ? "동의" : "";
+    } else {
+      payload.installAgree      = document.getElementById("installAgree").checked ? "동의" : "";
+      payload.actualInstallDate = document.getElementById("actualInstallDate").value.trim();
+      payload.installFee        = document.getElementById("installFee").value.trim();
+      payload.installFeeMethod  = document.getElementById("installFeeMethod").value;
+      payload.installFeeStatus  = document.getElementById("installFeeStatus").value;
+      payload.installFeeDueDate = document.getElementById("installFeeDueDate").value.trim();
+      payload.installFeeBank    = document.getElementById("installFeeBank").value;
+      payload.installFeeAccount = document.getElementById("installFeeAccount").value.trim();
+      payload.installFeeHolder  = document.getElementById("installFeeHolder").value.trim();
+    }
+
+    if (actionType === "submit") {
+      payload.signatureData = canvas.toDataURL("image/png");
+    }
+
+    return payload;
+  }
+
+  /* ── 유효성 검사 ── */
+  function validate(actionType) {
+    const name    = document.getElementById("customerName").value.trim();
+    const phone   = document.getElementById("customerPhone").value.trim();
+    const address = document.getElementById("customerAddress").value.trim();
+
+    if (!name || !phone || !address) {
+      alert("고객 기본 정보(이름·연락처·주소)를 모두 입력해 주세요.");
+      return false;
+    }
+
+    if (formType.value === "통합계약서") {
+      if (!document.getElementById("installDate").value.trim()) {
+        alert("설치 예정일을 입력해 주세요.");
+        return false;
+      }
+      if (!document.getElementById("bankName").value) {
+        alert("CMS 은행명을 선택해 주세요.");
+        return false;
+      }
+      if (!document.getElementById("accountNumber").value.trim()) {
+        alert("CMS 계좌번호를 입력해 주세요.");
+        return false;
+      }
+      if (!document.getElementById("accountHolder").value.trim()) {
+        alert("예금주를 입력해 주세요.");
+        return false;
+      }
+      if (actionType === "submit") {
+        if (!document.getElementById("agreePrivacy").checked ||
+            !document.getElementById("agreeCms").checked ||
+            !document.getElementById("agreeAll").checked) {
+          alert("동의 항목을 모두 체크해 주세요.");
+          return false;
+        }
+      }
+    } else {
+      if (!document.getElementById("actualInstallDate").value.trim()) {
+        alert("설치일을 입력해 주세요.");
+        return false;
+      }
+      if (!document.getElementById("installFee").value.trim()) {
+        alert("설치비를 입력해 주세요.");
+        return false;
+      }
+      if (actionType === "submit" && !document.getElementById("installAgree").checked) {
+        alert("설치 확인 동의를 체크해 주세요.");
+        return false;
+      }
+    }
+
+    if (actionType === "submit" && !hasSignature) {
+      alert("서명을 해 주세요.");
+      return false;
+    }
+
+    const dedupeKey = buildDedupeKey();
+    if (!dedupeKey.endsWith("|")) return true;
+
+    alert(formType.value === "통합계약서" ? "설치 예정일을 입력해 주세요." : "설치일을 입력해 주세요.");
+    return false;
+  }
+
+  /* ── 제출 후 최근 저장 문서 조회 ── */
+  async function fetchLatestSavedData(phone, currentFormType) {
+    const res = await fetch(`${WEB_APP_URL}?action=lookupLatestSubmission&phone=${encodeURIComponent(phone)}&formType=${encodeURIComponent(currentFormType)}`);
+    return await res.json();
+  }
+
+  function buildCustomerMessage(savedData, currentFormType) {
+    const pdfLine = savedData && savedData.pdfFileUrl ? `PDF 링크: ${savedData.pdfFileUrl}\n` : "";
+
+    if (currentFormType === "통합계약서") {
+      return `[참빛 안내]
+${savedData.customerName || ""} 고객님, 전자 계약서 접수가 정상 완료되었습니다.
+
+문서종류: 통합계약서
+모델명: ${savedData.modelName || "TL-5500"}
+월 구독료: ${savedData.monthlyFee || "22,000원"}
+설치 예정일: ${savedData.installDate || ""}
+${pdfLine}
+감사합니다.`;
+    }
+
+    return `[참빛 안내]
+${savedData.customerName || ""} 고객님, 설치확인서 접수가 정상 완료되었습니다.
+
+문서종류: 설치확인서
+모델명: ${savedData.modelName || "TL-5500"}
+설치일: ${savedData.actualInstallDate || ""}
+${pdfLine}
+감사합니다.`;
+  }
+
+  /* ── 데이터 전송 ── */
+  async function sendData(actionType) {
+    hideStatus();
+    hideResultBox();
+
+    if (!validate(actionType)) return;
+    const payload = buildPayload(actionType);
+
+    try {
+      showStatus("info", actionType === "saveDraft" ? "임시저장 중입니다." : "최종 제출 중입니다.");
+
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode:   "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body:   JSON.stringify(payload)
+      });
+
+      if (actionType === "saveDraft") {
+        showStatus("success", "임시저장되었습니다.");
+        alert("✅ 임시저장되었습니다.");
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      const latest = await fetchLatestSavedData(payload.customerPhoneDigits, payload.formType);
+
+      if (latest.result === "success" && latest.data) {
+        const msg = buildCustomerMessage(latest.data, payload.formType);
+        resultBox.style.display = "block";
+        customerMessage.value = msg;
+
+        if (latest.data.pdfFileUrl) {
+          pdfLink.href = latest.data.pdfFileUrl;
+          pdfLink.textContent = latest.data.pdfFileUrl;
+          pdfLinkBox.style.display = "block";
+        }
+
+        showStatus("success", "최종 제출이 완료되었습니다. PDF 링크와 고객 발송 문구가 생성되었습니다.");
+      } else {
+        showStatus("success", "최종 제출이 완료되었습니다.");
+      }
+
+      alert("✅ 최종 제출이 완료되었습니다!");
+      resetForm();
+      window.scrollTo({ top:0, behavior:"smooth" });
+
+    } catch(err) {
+      console.error(err);
+      showStatus("error", "전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      alert("⚠️ 전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }
+
+  document.getElementById("saveBtn").addEventListener("click",   () => sendData("saveDraft"));
+  document.getElementById("submitBtn").addEventListener("click", () => sendData("submit"));
+
+  document.getElementById("copyMessageBtn").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(customerMessage.value);
+      showStatus("success", "고객 발송 문구가 복사되었습니다.");
+    } catch (e) {
+      showStatus("error", "문구 복사에 실패했습니다.");
+    }
+  });
+
+  /* ── 초기화 ── */
+  function resetForm() {
+    ["customerName","customerAddress","accountNumber","accountHolder",
+     "installDate","actualInstallDate","installFee","installFeeAccount","installFeeHolder","note"]
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value=""; });
+
+    ["bankName","installFeeMethod","installFeeStatus","installFeeBank"]
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value=""; });
+
+    ["agreePrivacy","agreeCms","agreeAll","installAgree"]
+      .forEach(id => { const el = document.getElementById(id); if(el) el.checked=false; });
+
+    document.getElementById("customerPhone").value = "";
+    document.getElementById("linkedContractNo").value = "";
+    document.getElementById("dedupeKey").value = "";
+    document.getElementById("customerPhoneDigits").value = "";
+
+    lookupResultBox.style.display = "none";
+    lookupResultBox.innerHTML = "";
+    contractLinkBox.style.display = "none";
+    contractLinkText.textContent = "-";
+
+    hideResultBox();
+    updateSignatureAccess();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSignature = false;
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }
+
+  function clearBrowserAutofillValues() {
+    [
+      "customerPhone",
+      "customerName",
+      "customerAddress",
+      "accountNumber",
+      "accountHolder",
+      "installFeeAccount",
+      "installFeeHolder",
+      "note"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+  }
+
+  clearBrowserAutofillValues();
+  updateSection();
+</script>
+</body>
+</html>
