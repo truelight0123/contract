@@ -785,7 +785,7 @@
         document.getElementById("linkedContractNo").value   = data.data.contractDocNo  || "";
         document.getElementById("customerName").value       = data.data.customerName   || "";
         document.getElementById("customerAddress").value    = data.data.customerAddress || "";
-     if (data.data.signatureUrl) {
+     if (data.data.signatureDataUrl) {
       const img = new Image();
 
       img.onload = function() {
@@ -800,7 +800,7 @@
         hasSignature = true;
       };
 
-      img.src = data.data.signatureUrl;
+      img.src = data.data.signatureDataUrl;
     }
         contractLinkBox.style.display = "block";
         contractLinkText.textContent  = data.data.contractDocNo || "-";
