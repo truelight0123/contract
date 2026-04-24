@@ -785,6 +785,23 @@
         document.getElementById("linkedContractNo").value   = data.data.contractDocNo  || "";
         document.getElementById("customerName").value       = data.data.customerName   || "";
         document.getElementById("customerAddress").value    = data.data.customerAddress || "";
+     if (data.data.signatureUrl) {
+         const img = new Image();
+
+  img.onload = function() {
+    initCanvas();
+
+    const canvasWidth = canvas.offsetWidth || 300;
+    const canvasHeight = window.innerWidth <= 768 ? 200 : 220;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+
+    hasSignature = true;
+  };
+
+  img.src = data.data.signatureUrl;
+}
         contractLinkBox.style.display = "block";
         contractLinkText.textContent  = data.data.contractDocNo || "-";
 
