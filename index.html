@@ -401,8 +401,23 @@
   </div>
 
   <div class="field">
-    <label for="note">비고</label>
-    <textarea id="note" placeholder="메모가 있으면 입력해 주세요" autocomplete="off" name="ch_note"></textarea>
+   <label for="birth">생년월일 (주민번호 앞자리)</label>
+   <input 
+    type="text"
+    id="birth"
+    name="ch_birth"
+    maxlength="6"
+    placeholder="예: 900101"
+    inputmode="numeric"
+    pattern="[0-9]{6}"
+    autocomplete="off"
+    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);"
+    onblur="validateBirth(this)"
+   >
+
+   <small style="display:block; margin-top:6px; color:#888; font-size:12px;">
+    * CMS 결제수단 변경 시 필요합니다
+   </small>
   </div>
 
   <input type="hidden" id="linkedContractNo">
@@ -785,6 +800,7 @@
         document.getElementById("linkedContractNo").value   = data.data.contractDocNo  || "";
         document.getElementById("customerName").value       = data.data.customerName   || "";
         document.getElementById("customerAddress").value    = data.data.customerAddress || "";
+        document.getElementById("birth").value = data.data.birth || "";
      if (data.data.signatureDataUrl) {
       const img = new Image();
 
@@ -891,7 +907,7 @@
     <tr><th>CMS 은행명</th><td>${escapeHtml(payload.bankName)}</td></tr>
     <tr><th>CMS 계좌번호</th><td>${escapeHtml(payload.accountNumber)}</td></tr>
     <tr><th>예금주</th><td>${escapeHtml(payload.accountHolder)}</td></tr>
-    <tr><th>비고</th><td>${nl2br(payload.note || "-")}</td></tr>
+    <tr><th>생년월일</th><td>${escapeHtml(payload.birth || "-")}</td></tr>
   </table>
 
   <h2>2. 계약 내용</h2>
@@ -1015,7 +1031,7 @@
     <tr><th>설치비 입금 계좌번호</th><td>${escapeHtml(payload.installFeeAccount)}</td></tr>
     <tr><th>설치비 예금주</th><td>${escapeHtml(payload.installFeeHolder)}</td></tr>
     <tr><th>연결된 계약번호</th><td>${escapeHtml(payload.linkedContractNo || "-")}</td></tr>
-    <tr><th>비고</th><td>${nl2br(payload.note || "-")}</td></tr>
+    <tr><th>생년월일</th><td>${nl2br(payload.birth || "-")}</td></tr>
   </table>
 
   <h2>2. 확인 내용</h2>
@@ -1080,7 +1096,7 @@
       modelName: "TL-5500",
       agreedAt: now.toISOString(),
       agreedAtLocal: now.toLocaleString("ko-KR"),
-      note: document.getElementById("note").value.trim(),
+      birth: document.getElementById("birth").value.trim(),
       ...agreementData
     };
 
@@ -1115,10 +1131,16 @@
     const name    = document.getElementById("customerName").value.trim();
     const phone   = document.getElementById("customerPhone").value.trim();
     const address = document.getElementById("customerAddress").value.trim();
+    const birth = document.getElementById("birth").value.trim();
 
     if (!name || !phone || !address) {
-      alert("고객 기본 정보(이름·연락처·주소)를 모두 입력해 주세요.");
-      return false;
+     alert("고객 기본 정보(이름·연락처·주소)를 모두 입력해 주세요.");
+     return false;
+    }
+
+    if (!birth || birth.length !== 6) {
+     alert("생년월일 6자리를 입력해 주세요.");
+     return false;
     }
 
     if (formType.value === "통합계약서") {
@@ -1271,7 +1293,7 @@ ${pdfLine}
 
   function resetForm() {
     ["customerName","customerAddress","accountNumber","accountHolder",
-     "installDate","actualInstallDate","installFee","installFeeAccount","installFeeHolder","note"]
+     "installDate","actualInstallDate","installFee","installFeeAccount","installFeeHolder","birth"]
       .forEach(id => { const el = document.getElementById(id); if(el) el.value=""; });
 
     ["bankName","installFeeMethod","installFeeStatus","installFeeBank"]
@@ -1307,7 +1329,7 @@ ${pdfLine}
       "accountHolder",
       "installFeeAccount",
       "installFeeHolder",
-      "note"
+      "birth"
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = "";
@@ -1316,6 +1338,28 @@ ${pdfLine}
 
   clearBrowserAutofillValues();
   updateSection();
+</script>
+<script>
+function validateBirth(el) {
+  const v = el.value;
+  if (v.length !== 6) return;
+
+  const yy = v.substring(0,2);
+  const mm = v.substring(2,4);
+  const dd = v.substring(4,6);
+
+  const fullYear = Number(yy) <= 30 ? `20${yy}` : `19${yy}`;
+  const date = new Date(`${fullYear}-${mm}-${dd}`);
+
+  if (
+    date.getMonth() + 1 != Number(mm) ||
+    date.getDate() != Number(dd)
+  ) {
+    alert("올바른 생년월일을 입력해주세요");
+    el.value = "";
+    el.focus();
+  }
+}
 </script>
 </body>
 </html>
